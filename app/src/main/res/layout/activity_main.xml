@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
-                    android:hint="Email"
+                    android:hint="Password"
                     android:inputType="textPassword"
                     android:textColor="@color/black"
                     android:textColorHint="#33000000" />
