@@ -1,61 +1,89 @@
 package com.example.firebase;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
+import android.view.MenuItem;
+import android.widget.TextView;
 
-import com.example.firebase.databinding.ActivityMainBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.example.firebase.fragments.AddProductFragment;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    ActivityMainBinding binding;
+    DrawerLayout drawer;
+    NavigationView navigation;
+    Toolbar toolbar;
 
     FirebaseAuth mAuth;
+    String method;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_main);
+
+        drawer = findViewById(R.id.drawer);
+        navigation = findViewById(R.id.navigation);
+        toolbar = findViewById(R.id.toolbar);
 
         mAuth = FirebaseAuth.getInstance();
+        method = StartActivity.preferences.getString("method", "h");
 
-        binding.registerBtn.setOnClickListener(new View.OnClickListener() {
+        setSupportActionBar(toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(MainActivity.this, drawer, toolbar, R.string.open, R.string.close);
+        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white));
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        navigation.setCheckedItem(R.id.nav_add_product);
+        setFragment(new AddProductFragment());
+        navigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                registerUser();
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.nav_add_product){
+                    toolbar.setTitle("Add Product");
+                    setFragment(new AddProductFragment());
+                } else if (item.getItemId() == R.id.menu_logout){
+                    mAuth.signOut();
+                    startActivity(new Intent(MainActivity.this, StartActivity.class));
+                    finish();
+                }
+
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
             }
         });
+
+        if (method.equals("google")){
+            toolbar.setBackgroundColor(getResources().getColor(R.color.green));
+        } else if (method.equals("email")){
+            toolbar.setBackgroundColor(getResources().getColor(R.color.blue));
+        } else if (method.equals("phone")){
+            toolbar.setBackgroundColor(getResources().getColor(R.color.yellow));
+        }
     }
 
-    public void registerUser(){
-        mAuth.createUserWithEmailAndPassword(binding.edtEmail.getText().toString(), binding.edtPassword.getText().toString())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            binding.edtEmail.setText("");
-                            binding.edtPassword.setText("");
-                            Toast.makeText(MainActivity.this, "User Registered", Toast.LENGTH_SHORT).show();
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(MainActivity.this, task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
-                        }
-                    }
-                });
+    public void setFragment(Fragment fragment){
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frame, fragment)
+                .commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 }
