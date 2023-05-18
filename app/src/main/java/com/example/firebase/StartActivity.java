@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -35,6 +36,7 @@ public class StartActivity extends AppCompatActivity {
     private GoogleSignInClient googleSignInClient;
     public static SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
+    ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,11 @@ public class StartActivity extends AppCompatActivity {
         binding.googleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dialog = new ProgressDialog(StartActivity.this);
+                dialog.setCancelable(false);
+                dialog.setTitle("Please Wait");
+                dialog.setMessage("Signing in...");
+                dialog.show();
                 googleSignIn();
             }
         });
@@ -104,6 +111,7 @@ public class StartActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
+                                    dialog.dismiss();
                                     editor.putString("method", "google");
                                     editor.commit();
                                     startActivity(new Intent(StartActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));

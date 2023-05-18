@@ -11,6 +11,9 @@ import androidx.fragment.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.firebase.fragments.AddProductFragment;
@@ -62,12 +65,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        View headerView = navigation.getHeaderView(0);
+        LinearLayout linear = headerView.findViewById(R.id.linear);
+        ImageView img = headerView.findViewById(R.id.profileImg);
+
         if (method.equals("google")){
             toolbar.setBackgroundColor(getResources().getColor(R.color.green));
+            navigation.setBackgroundColor(getResources().getColor(R.color.light_green));
+            linear.setBackgroundColor(getResources().getColor(R.color.green));
+            img.setImageResource(R.drawable.user3);
         } else if (method.equals("email")){
             toolbar.setBackgroundColor(getResources().getColor(R.color.blue));
+            navigation.setBackgroundColor(getResources().getColor(R.color.light_blue));
+            linear.setBackgroundColor(getResources().getColor(R.color.blue));
+            img.setImageResource(R.drawable.user1);
         } else if (method.equals("phone")){
             toolbar.setBackgroundColor(getResources().getColor(R.color.yellow));
+            navigation.setBackgroundColor(getResources().getColor(R.color.light_yellow));
+            linear.setBackgroundColor(getResources().getColor(R.color.yellow));
+            img.setImageResource(R.drawable.user2);
         }
     }
 
